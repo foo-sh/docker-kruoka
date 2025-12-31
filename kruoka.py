@@ -41,7 +41,9 @@ def fetch_data():
         page.goto("https://www.k-ruoka.fi/kauppa/k-market-tuira/aukioloajat")
         for entry in page.get_by_test_id("opening-hours-row").all():
             day = parse_date(entry.get_by_test_id("opening-hours-label").inner_text())
-            (opens, closes) = parse_times(entry.get_by_test_id("opening-hours-hours").inner_text())
+            (opens, closes) = parse_times(
+                entry.get_by_test_id("opening-hours-hours").inner_text()
+            )
             cache[str(day)] = {"opens": opens, "closes": closes}
 
 
@@ -59,10 +61,12 @@ def handler(isodate):
 
     if str(query) not in cache.keys():
         if query < date.today():
-            api.logger.warning(f"Cannot query past dates (query!r) from source")
+            api.logger.warning(f"Cannot query past dates ({query!r}) from source")
             abort(404)
         elif query > date.today() + timedelta(days=7):
-            api.logger.warning(f"Cannot query dates newer than 7 days (query!r) from source")
+            api.logger.warning(
+                f"Cannot query dates newer than 7 days ({query!r}) from source"
+            )
             abort(404)
         fetch_data()
     try:
