@@ -23,9 +23,6 @@ cache = {}
 
 def parse_date(s):
     parsed = date.strptime(s.split()[-1] + str(date.today().year), "%d.%m.%Y")
-    check = parsed - timedelta(days=364)
-    if check.year != date.today().year:
-        parsed = parsed.replace(parsed.year + 1)
     return parsed
 
 
