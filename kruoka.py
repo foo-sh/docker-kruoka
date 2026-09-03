@@ -1,9 +1,12 @@
 import logging
+import zoneinfo
+from datetime import datetime, timedelta
 
-from datetime import date, timedelta
 from flask import Flask, abort, jsonify
 from playwright.sync_api import sync_playwright
 from werkzeug.exceptions import HTTPException
+
+timezone = zoneinfo.ZoneInfo("Europe/Helsinki")
 
 
 class API(Flask):
@@ -22,12 +25,15 @@ cache = {}
 
 
 def parse_date(s):
-    parsed = date.strptime(s.split()[-1] + str(date.today().year), "%d.%m.%Y")
+    year = str(datetime.now(timezone).year)
+    parsed = datetime.strptime(s.split()[-1] + year, "%d.%m.%Y").replace(
+        tzinfo=timezone
+    )
     return parsed
 
 
 def parse_times(s):
-    (opens, closes) = map(lambda x: x.replace(".", ":"), s.split("–"))
+    (opens, closes) = (x.replace(".", ":") for x in s.split("–"))
     return (opens, closes)
 
 
@@ -48,19 +54,19 @@ def fetch_data():
 @api.route("/<isodate>", methods=["GET"])
 def handler(isodate):
     if isodate is None:
-        query = date.today()
+        query = datetime.now(timezone).date()
     else:
         try:
-            query = date.strptime(isodate, "%Y-%m-%d")
+            query = datetime.strptime(isodate, "%Y-%m-%d").replace(tzinfo=timezone)
         except ValueError:
             api.logger.warning(f"Invalid date {query!r}")
             abort(400)
 
-    if str(query) not in cache.keys():
-        if query < date.today():
+    if str(query) not in cache:
+        if query < datetime.now(timezone).date():
             api.logger.warning(f"Cannot query past dates ({query!r}) from source")
             abort(404)
-        elif query > date.today() + timedelta(days=7):
+        elif query > datetime.now(timezone).date() + timedelta(days=7):
             api.logger.warning(
                 f"Cannot query dates newer than 7 days ({query!r}) from source"
             )
