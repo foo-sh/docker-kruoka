@@ -45,7 +45,9 @@ def fetch_data():
         page = browser.new_page()
         resp = page.goto("https://www.k-ruoka.fi/kauppa/k-market-tuira/aukioloajat")
         if resp.status != 200:
-            api.logger.warning(f"Error {resp.status} while fetching data from {page.url}")
+            api.logger.warning(
+                f"Error {resp.status} while fetching data from {page.url}"
+            )
             return False
         for entry in page.get_by_test_id("opening-hours-row").all():
             day = parse_date(entry.get_by_test_id("opening-hours-label").inner_text())
@@ -93,7 +95,7 @@ def handler(isodate):
                 api.logger.warning(f"Increasing cooldown to {cooldown[1]} seconds")
             except TypeError:
                 cooldown = (time.monotonic() + 10, 10)
-                api.logger.warning(f"Starting 10 second cooldown period")
+                api.logger.warning("Starting 10 second cooldown period")
             abort(503)
     try:
         return jsonify(cache[str(query)])
