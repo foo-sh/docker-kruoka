@@ -59,16 +59,16 @@ def handler(isodate):
         try:
             query = datetime.strptime(isodate, "%Y-%m-%d").replace(tzinfo=timezone).date()
         except ValueError:
-            api.logger.warning(f"Invalid date {query!r}")
+            api.logger.warning(f"Invalid date {query}")
             abort(400)
 
     if str(query) not in cache:
         if query < datetime.now(timezone).date():
-            api.logger.warning(f"Cannot query past dates ({query!r}) from source")
+            api.logger.warning(f"Cannot query past dates ({query}) from source")
             abort(404)
         elif query > datetime.now(timezone).date() + timedelta(days=7):
             api.logger.warning(
-                f"Cannot query dates newer than 7 days ({query!r}) from source"
+                f"Cannot query dates newer than 7 days ({query}) from source"
             )
             abort(404)
         fetch_data()
