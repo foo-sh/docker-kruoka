@@ -8,13 +8,19 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   ruff:
     runs-on: ubuntu-slim
     timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
       - name: Get python version
         run: sed -n "s/^FROM \(.*\/\)\?python:\([0-9\.]\+\).*/\2/p" Dockerfile > .python-version
       - name: Setup Python
@@ -35,11 +41,15 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: read
     needs:
       - ruff
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
       - name: Build Docker image
         run: docker build -t kruoka:latest .
       - name: Start container
