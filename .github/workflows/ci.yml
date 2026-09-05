@@ -14,11 +14,11 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Get python version
         run: sed -n "s/^FROM \(.*\/\)\?python:\([0-9\.]\+\).*/\2/p" Dockerfile > .python-version
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  #v7.0.0
         with:
           python-version-file: ".python-version"
       - name: Install python dependencies

@@ -15,3 +15,9 @@ updates:
     cooldown:
       default-days: 7
     rebase-strategy: disabled
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: daily
+    cooldown:
+      default-days: 7
