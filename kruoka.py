@@ -29,7 +29,7 @@ def parse_date(s):
     parsed = datetime.strptime(s.split()[-1] + year, "%d.%m.%Y").replace(
         tzinfo=timezone
     )
-    return parsed
+    return parsed.date()
 
 
 def parse_times(s):
