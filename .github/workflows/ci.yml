@@ -27,3 +27,23 @@ jobs:
         run: ruff check kruoka.py
       - name: Run ruff format
         run: ruff format --check kruoka.py
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs:
+      - ruff
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - name: Build Docker image
+        run: docker build -t kruoka:latest .
+      - name: Start container
+        run: docker run -rm -d --name kruoka -p 8000:8000 kruoka:latest
+      - name: Test endpoint
+        run: |
+          curl --fail http://localhost:8000
+          curl --fail "http://localhost:8000/$(date "+%Y-%m-%d")"
+      - name: Stop container
+        if: always()
+        run: |
+          docker stop kruoka
