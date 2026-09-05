@@ -43,7 +43,7 @@ jobs:
         run: |
           for _ in $(seq 1 10) ; do
               if curl -sSf http://127.0.0.1:8000 ; then
-                  exit 1
+                  exit 0
               else
                   sleep 1
               fi
