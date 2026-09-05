@@ -39,7 +39,18 @@ jobs:
         run: docker build -t kruoka:latest .
       - name: Start container
         run: docker run --rm -d --name kruoka -p 8000:8000 kruoka:latest
-      - name: Test endpoint
+      - name: Wait for container to start
+        run: |
+          for _ in $(seq 1 10) ; do
+              if curl -sSf http://127.0.0.1:8000 ; then
+                  exit 1
+              else
+                  sleep 1
+              fi
+          done
+          echo "Max retries exceeded while waiting for container to come up"
+          exit 1
+      - name: Run tests
         run: python3 test_api.py
       - name: Stop container
         if: always()
