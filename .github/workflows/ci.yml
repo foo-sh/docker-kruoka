@@ -38,7 +38,7 @@ jobs:
       - name: Build Docker image
         run: docker build -t kruoka:latest .
       - name: Start container
-        run: docker run -rm -d --name kruoka -p 8000:8000 kruoka:latest
+        run: docker run --rm -d --name kruoka -p 8000:8000 kruoka:latest
       - name: Test endpoint
         run: |
           curl --fail http://localhost:8000
