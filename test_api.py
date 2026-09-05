@@ -1,9 +1,12 @@
-from datetime import datetime, timedelta
 import json
 import re
 import sys
-import urllib.request
 import urllib.error
+import urllib.request
+import zoneinfo
+from datetime import datetime, timedelta
+
+TIMEZONE = zoneinfo.ZoneInfo("Europe/Helsinki")
 
 
 def fetch_api(base_url, endpoint):
@@ -45,8 +48,8 @@ def verify_success_payload(data):
 
 def test_api_routes(base_url):
     # 1. Setup dynamic test dates
-    today_str = datetime.now().strftime("%Y-%m-%d")
-    future_8_days = (datetime.now() + timedelta(days=8)).strftime("%Y-%m-%d")
+    today_str = datetime.now(TIMEZONE).strftime("%Y-%m-%d")
+    future_8_days = (datetime.now(TIMEZONE) + timedelta(days=8)).strftime("%Y-%m-%d")
 
     print(f"Running API assertion tests against: {base_url}")
 
@@ -82,7 +85,6 @@ def test_api_routes(base_url):
 
 if __name__ == "__main__":
     target_url = sys.argv[1] if len(sys.argv) > 1 else "http://127.0.0.1:8000"
-    if target_url.endswith("/"):
-        target_url = target_url[:-1]
+    target_url = target_url.removesuffix("/")
 
     test_api_routes(target_url)
