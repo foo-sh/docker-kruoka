@@ -61,7 +61,7 @@ def handler(isodate):
                 datetime.strptime(isodate, "%Y-%m-%d").replace(tzinfo=timezone).date()
             )
         except ValueError:
-            api.logger.warning(f"Invalid date {query}")
+            api.logger.warning(f"Invalid date '{isodate}'")
             abort(400)
 
     if str(query) not in cache:
