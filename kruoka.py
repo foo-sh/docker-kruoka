@@ -1,4 +1,5 @@
 import logging
+import time
 import zoneinfo
 from datetime import datetime, timedelta
 
@@ -22,6 +23,7 @@ api = API(__name__)
 
 
 cache = {}
+cooldown = None
 
 
 def parse_date(s):
@@ -41,18 +43,24 @@ def fetch_data():
     with sync_playwright() as p:
         browser = p.firefox.launch()
         page = browser.new_page()
-        page.goto("https://www.k-ruoka.fi/kauppa/k-market-tuira/aukioloajat")
+        resp = page.goto("https://www.k-ruoka.fi/kauppa/k-market-tuira/aukioloajat")
+        if resp.status != 200:
+            api.logger.warning(f"Error {resp.status} while fetching data from {page.url}")
+            return False
         for entry in page.get_by_test_id("opening-hours-row").all():
             day = parse_date(entry.get_by_test_id("opening-hours-label").inner_text())
             (opens, closes) = parse_times(
                 entry.get_by_test_id("opening-hours-hours").inner_text()
             )
             cache[str(day)] = {"opens": opens, "closes": closes}
+            return True
 
 
 @api.route("/", defaults={"isodate": None}, methods=["GET"])
 @api.route("/<isodate>", methods=["GET"])
 def handler(isodate):
+    global cooldown
+
     if isodate is None:
         query = datetime.now(timezone).date()
     else:
@@ -73,7 +81,20 @@ def handler(isodate):
                 f"Cannot query dates newer than 7 days ({query}) from source"
             )
             abort(404)
-        fetch_data()
+        if cooldown is not None and time.monotonic() < cooldown[0]:
+            abort(503)
+        if fetch_data():
+            if cooldown is not None:
+                api.logger.info("Removing cooldown, fetch successfull")
+            cooldown = None
+        else:
+            try:
+                cooldown = (time.monotonic() + cooldown[1] * 2, cooldown[1] * 2)
+                api.logger.warning(f"Increasing cooldown to {cooldown[1]} seconds")
+            except TypeError:
+                cooldown = (time.monotonic() + 10, 10)
+                api.logger.warning(f"Starting 10 second cooldown period")
+            abort(503)
     try:
         return jsonify(cache[str(query)])
     except KeyError:
