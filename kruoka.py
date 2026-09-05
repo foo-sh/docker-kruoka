@@ -84,7 +84,7 @@ def handler(isodate):
             )
             abort(404)
         if cooldown is not None and time.monotonic() < cooldown[0]:
-            api.logger.warning(f"Inside cooldown period, skipping fetch")
+            api.logger.warning("Inside cooldown period, skipping fetch")
             abort(503)
         if fetch_data():
             if cooldown is not None:
