@@ -29,7 +29,7 @@ jobs:
         run: ruff format --check
       - name: Notify chat
         uses: arcticsecurity/rocketchat-notify@3619b46c95d49aca76682f8200f51ec6964ecb68  # v1.0.0
-        if: ! success()
+        if: ${{ ! success() }}
         with:
           webhook: ${{ secrets.ROCKETCHAT_WEBHOOK }}
   test:
@@ -63,6 +63,6 @@ jobs:
           docker stop kruoka
       - name: Notify chat
         uses: arcticsecurity/rocketchat-notify@3619b46c95d49aca76682f8200f51ec6964ecb68  # v1.0.0
-        if: ! success()
+        if: ${{ ! success() }}
         with:
           webhook: ${{ secrets.ROCKETCHAT_WEBHOOK }}
