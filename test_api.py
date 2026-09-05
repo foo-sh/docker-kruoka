@@ -68,7 +68,7 @@ def test_api_routes(base_url):
     # 4. Test Invalid date string format
     print("-> Checking bad format /not-a-date")
     status, _ = fetch_api(base_url, "/not-a-date")
-    assert status == 404, f"Expected 404, got {status}"
+    assert status == 400, f"Expected 400, got {status}"
 
     # 5. Test Far future date boundary (>= 8 days)
     print(f"-> Checking far future /{future_8_days}")
