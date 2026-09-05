@@ -57,7 +57,7 @@ def handler(isodate):
         query = datetime.now(timezone).date()
     else:
         try:
-            query = datetime.strptime(isodate, "%Y-%m-%d").replace(tzinfo=timezone)
+            query = datetime.strptime(isodate, "%Y-%m-%d").replace(tzinfo=timezone).date()
         except ValueError:
             api.logger.warning(f"Invalid date {query!r}")
             abort(400)
