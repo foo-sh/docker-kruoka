@@ -40,9 +40,7 @@ jobs:
       - name: Start container
         run: docker run --rm -d --name kruoka -p 8000:8000 kruoka:latest
       - name: Test endpoint
-        run: |
-          curl --fail http://localhost:8000
-          curl --fail "http://localhost:8000/$(date "+%Y-%m-%d")"
+        run: python3 test_api.py
       - name: Stop container
         if: always()
         run: |
